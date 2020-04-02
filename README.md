@@ -16,6 +16,7 @@ $options = [
     'port'       => 11211,
     'lifetime'   => 3600,
     'prefix'     => '',
+    'serialize' => 'php'  // php|json|igbinary|msgpack
 ];
 $cache = new Cache::memcache($options);
 
@@ -26,5 +27,4 @@ print_r($data);
 ```
 
 ## Todo
-- 增加Redis，Memcached支持
-- 增加Igbinary，Base64序列化支持
+- 增加Memcached，Predis支持

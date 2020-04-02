@@ -45,12 +45,9 @@ class Memcache extends AbstractDriver
         'lifetime'   => 0,
         'prefix'     => '',
         'timeout'    => 1,
-        // 长链接
-        'persistent' => true,
-        // 多服务器（有此项则忽略host,port）
-        'servers'    => [],
-        // 序列化方式（php/json）
-        'serialize'  => 'php'
+        'persistent' => true,       // 长链接
+        'servers'    => [],         // 多服务器（有此项则忽略host,port）
+        'serialize'  => 'php'       // 序列化方式（php/json）
     ];
 
     public function __construct(array $options = [])
@@ -62,7 +59,6 @@ class Memcache extends AbstractDriver
             $this->options = array_merge($this->options, $options);
         }
         parent::__construct($this->options);
-        $this->setSerializer();
 
         // 处理连接地址
         if (!$this->options['servers']) {
@@ -84,6 +80,16 @@ class Memcache extends AbstractDriver
                 $this->options['timeout']
             );
         }
+
+        $this->setSerializer();
+    }
+
+    /**
+     * 设置序列化类
+     */
+    private function setSerializer()
+    {
+        $this->initSerializer();
     }
 
     /**
@@ -149,13 +155,5 @@ class Memcache extends AbstractDriver
     {
         $key = $this->getCacheKey($key);
         return !!$this->_handler->get($key);
-    }
-
-    /**
-     * 设置序列化类
-     */
-    private function setSerializer()
-    {
-        $this->initSerializer();
     }
 }

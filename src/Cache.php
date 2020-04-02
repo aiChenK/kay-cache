@@ -9,10 +9,12 @@
 namespace KayCache;
 
 use KayCache\Driver\Memcache;
+use KayCache\Driver\Redis;
 use KayCache\Exception\CacheException;
 
 /**
  * @method static Memcache memcache(array $options = [])
+ * @method static Redis redis(array $options = [])
  */
 class Cache
 {

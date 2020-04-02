@@ -134,7 +134,7 @@ class Redis extends AbstractDriver
     public function delete($key)
     {
         $key = $this->getCacheKey($key);
-        return $this->_handler->del($key);
+        return !!$this->_handler->del($key);
     }
 
     /**
@@ -156,7 +156,7 @@ class Redis extends AbstractDriver
     public function has($key)
     {
         $key = $this->getCacheKey($key);
-        return $this->_handler->exists($key);
+        return !!$this->_handler->exists($key);
     }
 
     /**

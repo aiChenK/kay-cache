@@ -18,6 +18,6 @@ $cache = Cache::redis($options);
 $cache->set('test', ['a' => 1, 'b' => 2]);
 $cache->set('test1', 'aaaaaa');
 $data = $cache->get('test');
+
 print_r($data);
-$result = $cache->deleteMultiple(['test', 'test1']);
-var_dump($result);
+$cache->deleteMultiple(['test', 'test1']);

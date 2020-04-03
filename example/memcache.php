@@ -20,3 +20,5 @@ $cache->set('test', ['a' => 1, 'b' => 2]);
 $data = $cache->get('test');
 
 print_r($data);
+
+$cache->delete('test');

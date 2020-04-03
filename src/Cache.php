@@ -8,13 +8,15 @@
 
 namespace KayCache;
 
-use KayCache\Driver\Memcache;
 use KayCache\Driver\Redis;
+use KayCache\Driver\Memcache;
+use KayCache\Driver\Memcached;
 use KayCache\Exception\CacheException;
 
 /**
- * @method static Memcache memcache(array $options = [])
  * @method static Redis redis(array $options = [])
+ * @method static Memcache memcache(array $options = [])
+ * @method static Memcached memcached(array $options = [])
  */
 class Cache
 {

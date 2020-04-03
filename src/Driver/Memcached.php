@@ -2,14 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: aiChenK
- * Date: 2020-03-31
- * Time: 14:44
+ * Date: 2020-04-03
+ * Time: 09:48
  */
 
 namespace KayCache\Driver;
 
 /**
- * KakCache\Driver\Memcache
+ * KakCache\Driver\Memcached
  *
  * // 实例化
  * $cache = new Memcache([
@@ -37,23 +37,26 @@ namespace KayCache\Driver;
  *      'prefix'     => 'test_'
  * ]);
  */
-class Memcache extends AbstractDriver
+class Memcached extends AbstractDriver
 {
     protected $options = [
         'host'       => '127.0.0.1',
         'port'       => 11211,
+        'username'   => '',
+        'password'   => '',
         'lifetime'   => 0,
         'prefix'     => '',
         'timeout'    => 1,
         'persistent' => true,       // 长链接
         'servers'    => [],         // 多服务器（有此项则忽略host,port）
-        'serialize'  => 'php'       // 序列化方式（php/json）
+        'serialize'  => 'php',
+        'option'     => [],
     ];
 
     public function __construct(array $options = [])
     {
-        if (!extension_loaded('memcache')) {
-            throw new \BadFunctionCallException('extension `memcache` not support');
+        if (!extension_loaded('memcached')) {
+            throw new \BadFunctionCallException('extension `memcached` not support');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -61,7 +64,7 @@ class Memcache extends AbstractDriver
         parent::__construct($this->options);
 
         // 处理连接地址
-        if (!$this->options['servers']) {
+        if (empty($this->options['servers'])) {
             $this->options['servers'][] = [
                 'host'   => $this->options['host'],
                 'port'   => $this->options['port'],
@@ -70,15 +73,20 @@ class Memcache extends AbstractDriver
         }
 
         // 初始化实例
-        $this->_handler = new \Memcache();
-        foreach ($this->options['servers'] as $server) {
-            $this->_handler->addServer(
-                $server['host'],
-                $server['port'],
-                $this->options['persistent'],
-                $server['weight'] ?? 1,
-                $this->options['timeout']
-            );
+        $this->_handler = new \Memcached($this->options['persistent'] ? 'persistent' : '');
+        $this->_handler->addServers($this->options['servers']);
+        if (!empty($this->options['option'])) {
+            $this->_handler->setOptions($this->options['option']);
+        }
+        if ($this->options['timeout'] > 0) {
+            $this->_handler->setOption(\Memcached::OPT_CONNECT_TIMEOUT, intval($this->options['timeout'] * 1000));
+        }
+        if ($this->options['username'] !== '') {
+            $this->_handler->setSaslAuthData($this->options['username'], $this->options['password']);
+        }
+        if ($this->_prefix !== '') {
+            $this->_handler->setOption(\Memcached::OPT_PREFIX_KEY, $this->_prefix);
+            $this->_prefix = '';
         }
 
         $this->setSerializer();
@@ -120,7 +128,7 @@ class Memcache extends AbstractDriver
         $value = $this->getSerializeData($value);
         $ttl   = $this->getLifetime($ttl);
 
-        return $this->_handler->set($key, $value, 0, $ttl);
+        return $this->_handler->set($key, $value, $ttl);
     }
 
     /**
@@ -156,5 +164,53 @@ class Memcache extends AbstractDriver
     {
         $key = $this->getCacheKey($key);
         return !!$this->_handler->get($key);
+    }
+
+    /**
+     * 批量获取
+     *
+     * @param iterable $keys
+     * @param null $default
+     * @return array|iterable|mixed
+     */
+    public function getMultiple($keys, $default = null)
+    {
+        $data = $this->_handler->getMulti((array) $keys);
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $data)) {
+                $data[$key] = $default;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * 批量设置
+     *
+     * @param iterable $values
+     * @param null $ttl
+     * @return bool
+     */
+    public function setMultiple($values, $ttl = null)
+    {
+        $ttl = $this->getLifetime($ttl);
+        return $this->_handler->setMulti((array) $values, $ttl);
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param iterable $keys
+     * @return bool
+     */
+    public function deleteMultiple($keys)
+    {
+        $result = $this->_handler->deleteMulti((array) $keys);
+        foreach ($result as $code) {
+            if ($code === \Memcached::RES_FAILURE){
+                return false;
+            }
+        }
+        return true;
     }
 }

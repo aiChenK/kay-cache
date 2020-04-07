@@ -36,6 +36,8 @@ namespace KayCache\Driver;
  *      'lifetime'   => 0,
  *      'prefix'     => 'test_'
  * ]);
+ *
+ * @method \Memcache handler()
  */
 class Memcache extends AbstractDriver
 {

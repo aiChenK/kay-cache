@@ -19,6 +19,8 @@ namespace KayCache\Driver;
  *      'lifetime'   => 3600,
  *      'prefix'     => 'test_'
  * ]);
+ *
+ * @method \Redis handler()
  */
 class Redis extends AbstractDriver
 {

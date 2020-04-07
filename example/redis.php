@@ -21,3 +21,6 @@ $data = $cache->get('test');
 
 print_r($data);
 $cache->deleteMultiple(['test', 'test1']);
+
+$redis = $cache->handler();
+var_dump($redis->incr('test2'));

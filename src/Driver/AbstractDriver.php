@@ -35,6 +35,16 @@ abstract class AbstractDriver implements CacheInterface
     }
 
     /**
+     * 获取缓存实例
+     *
+     * @return AbstractDriver
+     */
+    public function handler()
+    {
+        return $this->_handler;
+    }
+
+    /**
      * 获取实际key
      *
      * @param string $key

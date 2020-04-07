@@ -25,6 +25,3 @@ $data = $cache->get('test');
 
 print_r($data);
 ```
-
-## Todo
-- 增加Memcached，Predis支持

@@ -9,10 +9,9 @@
 namespace KayCache\Driver;
 
 use KayCache\Serializer\AbstractSerializer;
-use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 
-abstract class AbstractDriver implements CacheInterface
+abstract class AbstractDriver implements DriverInterface
 {
     /**
      * @var AbstractDriver
@@ -166,5 +165,29 @@ abstract class AbstractDriver implements CacheInterface
                 $this->_serializer = new $serializerName();
             }
         }
+    }
+
+    /**
+     * 过滤key前缀
+     *
+     * @param array $keys
+     * @param string $prefix
+     * @param bool $realKey
+     * @return array
+     */
+    protected function getFilteredKeys(array $keys, string $prefix = '', bool $realKey = false)
+    {
+        $prefix = $this->_prefix . $prefix;
+        if (!$prefix) {
+            return $keys;
+        }
+        $result    = [];
+        $prefixLen = strlen($prefix);
+        foreach ($keys as $key) {
+            if (strpos($key, $prefix) === 0) {
+                $result[] = $realKey ? $key : substr($key, $prefixLen);
+            }
+        }
+        return $result;
     }
 }

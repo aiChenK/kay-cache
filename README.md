@@ -24,4 +24,11 @@ $cache->set('test', '111');
 $data = $cache->get('test');
 
 print_r($data);
+
+$keys = $cache->queryKeys();
+print_r($keys);
 ```
+
+## 更新说明
+2020-04-08
+- **Add** 支持queryKeys($prefix = '', bool $realKey = false)方法，获取key列表

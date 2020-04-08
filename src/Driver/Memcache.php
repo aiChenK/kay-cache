@@ -159,4 +159,48 @@ class Memcache extends AbstractDriver
         $key = $this->getCacheKey($key);
         return !!$this->_handler->get($key);
     }
+
+    /**
+     * 获取key列表
+     *
+     * @param string $prefix
+     * @param bool $realKey     --获取真实key（否则去除全局前缀）
+     * @return array
+     */
+    public function queryKeys($prefix = '', bool $realKey = false)
+    {
+        $keys = [];
+        $allSlabs   = $this->_handler->getExtendedStats('slabs');
+        $allSlabIds = [];
+        foreach ($allSlabs as $server => $slabs) {
+            if (!$slabs) {
+                continue;
+            }
+            foreach ($slabs as $slabId => $slabInfo) {
+                if (!is_numeric($slabId)) {
+                    continue;
+                }
+                if (isset($allSlabIds[$slabId])) {
+                    continue;
+                }
+                $allSlabIds[$slabId] = 1;
+            }
+        }
+        $allSlabIds = array_keys($allSlabIds);
+        foreach ($allSlabIds AS $slabId) {
+            if (!is_numeric($slabId)) {
+                continue;
+            }
+            $dump = $this->_handler->getExtendedStats('cachedump', (int) $slabId);
+            foreach ($dump AS $arrVal) {
+                if (!$arrVal) {
+                    continue;
+                }
+                foreach ($arrVal AS $k => $v) {
+                    $keys[] = trim($k);
+                }
+            }
+        }
+        return $this->getFilteredKeys($keys, $prefix, $realKey);
+    }
 }

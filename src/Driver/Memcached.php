@@ -86,10 +86,6 @@ class Memcached extends AbstractDriver
         if ($this->options['username'] !== '') {
             $this->_handler->setSaslAuthData($this->options['username'], $this->options['password']);
         }
-        if ($this->_prefix !== '') {
-            $this->_handler->setOption(\Memcached::OPT_PREFIX_KEY, $this->_prefix);
-            $this->_prefix = '';
-        }
 
         $this->setSerializer();
     }
@@ -214,5 +210,17 @@ class Memcached extends AbstractDriver
             }
         }
         return true;
+    }
+
+    /**
+     * 获取key列表
+     *
+     * @param string $prefix
+     * @param bool $realKey     --获取真实key（否则去除全局前缀）
+     * @return array
+     */
+    public function queryKeys($prefix = '', bool $realKey = false)
+    {
+        return $this->getFilteredKeys($this->_handler->getAllKeys(), $prefix, $realKey);
     }
 }

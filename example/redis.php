@@ -11,7 +11,8 @@ use KayCache\Cache;
 
 $options = [
     'host'      => 'redis',
-    'serialize' => 'php'
+    'serialize' => 'php',
+    'prefix' => 'a_'
 ];
 $cache = Cache::redis($options);
 
@@ -21,6 +22,3 @@ $data = $cache->get('test');
 
 print_r($data);
 $cache->deleteMultiple(['test', 'test1']);
-
-$redis = $cache->handler();
-var_dump($redis->incr('test2'));
